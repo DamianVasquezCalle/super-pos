@@ -4,6 +4,7 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import Login from './components/Login';
 
 const Home = lazy(() => import('./components/Home'));
+const MyProfile = lazy(() => import('./components/MyProfile'));
 
 const AppRoutes = () => {
   return (
@@ -14,6 +15,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <Home />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <MyProfile />
           </ProtectedRoute>
         }
       />

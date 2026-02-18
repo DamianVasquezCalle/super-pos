@@ -10,16 +10,22 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   return isLoading ? (
-    <div className="flex justify-center h-[100vh] items-center">
+    <div className="flex justify-center min-h-[100vh] items-center">
       <PageLoading fixed />
     </div>
   ) : (
-    <div className="flex flex-col gap-3 items-center h-[100vh] p-[1rem]">
+    <div className="flex flex-col min-h-[100vh]">
       <Header />
-      {step === 0 && (
-        <NewUserForm setStep={setStep} setIsLoading={setIsLoading} />
-      )}
-      {step === 1 && <Question setStep={setStep} setIsLoading={setIsLoading} />}
+      <div className="flex flex-col flex-1 items-center w-full">
+        <div className="w-full max-w-2xl px-4 sm:px-6 py-4 flex flex-col gap-3 flex-1">
+          {step === 0 && (
+            <NewUserForm setStep={setStep} setIsLoading={setIsLoading} />
+          )}
+          {step === 1 && (
+            <Question setStep={setStep} setIsLoading={setIsLoading} />
+          )}
+        </div>
+      </div>
     </div>
   );
 };
