@@ -3,18 +3,37 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Login from './components/Login';
 
-const Home = lazy(() => import('./components/Home'));
+const Dashboard = lazy(() => import('./components/Dashboard'));
+const PointOfSale = lazy(() => import('./components/PointOfSale'));
+const FardosPage = lazy(() => import('./components/Home'));
 const MyProfile = lazy(() => import('./components/MyProfile'));
 
 const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route
-        path="/"
+        path="/dashboard"
         element={
           <ProtectedRoute>
-            <Home />
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/pos"
+        element={
+          <ProtectedRoute>
+            <PointOfSale />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/fardos"
+        element={
+          <ProtectedRoute>
+            <FardosPage />
           </ProtectedRoute>
         }
       />
@@ -26,7 +45,7 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 };

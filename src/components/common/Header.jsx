@@ -5,33 +5,50 @@ import {
   NavbarBrand,
   NavbarContent,
   NavbarItem,
+  NavbarMenuToggle,
+  NavbarMenu,
+  NavbarMenuItem,
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
   Avatar,
+  Link,
 } from "@nextui-org/react";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
+
+const NAV_ITEMS = [
+  { label: "Dashboard", path: "/dashboard", icon: "fa-solid fa-gauge-high" },
+  { label: "Punto de venta", path: "/pos", icon: "fa-solid fa-cash-register" },
+  { label: "Fardos", path: "/fardos", icon: "fa-solid fa-boxes-stacked" },
+];
 
 const Header = () => {
   const { user, logout } = useAuth0();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout({ logoutParams: { returnTo: window.location.origin + "/login" } });
   };
 
-  return (
-    <Navbar>
-      <NavbarBrand>
-        <Icon icon="fa-solid fa-bars" size="xl" />
-      </NavbarBrand>
+  const handleNavClick = (path) => {
+    navigate(path);
+    setIsMenuOpen(false);
+  };
 
-      <NavbarContent justify="center">
-        <NavbarItem>
-          <p className="text-xl sm:text-2xl font-semibold">Titulo</p>
-        </NavbarItem>
+  return (
+    <Navbar isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen}>
+      <NavbarContent>
+        <NavbarMenuToggle
+          aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
+        />
+        <NavbarBrand>
+          <p className="text-lg font-bold text-primary">Ayudante</p>
+        </NavbarBrand>
       </NavbarContent>
 
       <NavbarContent justify="end">
@@ -73,6 +90,26 @@ const Header = () => {
           </Dropdown>
         </NavbarItem>
       </NavbarContent>
+
+      <NavbarMenu>
+        {NAV_ITEMS.map((item) => {
+          const isActive = pathname === item.path;
+          return (
+            <NavbarMenuItem key={item.path} isActive={isActive}>
+              <Link
+                as="button"
+                className="w-full flex items-center gap-3 text-left"
+                color={isActive ? "primary" : "foreground"}
+                size="lg"
+                onPress={() => handleNavClick(item.path)}
+              >
+                <Icon icon={item.icon} className="w-5" />
+                {item.label}
+              </Link>
+            </NavbarMenuItem>
+          );
+        })}
+      </NavbarMenu>
     </Navbar>
   );
 };

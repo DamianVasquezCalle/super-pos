@@ -1,17 +1,8 @@
-import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-  Pagination,
-  Spinner,
-  Chip,
-} from "@nextui-org/react";
+import { Pagination, Spinner, Chip, Button } from "@nextui-org/react";
 import { useState, useEffect, useCallback } from "react";
 import { useSupabase } from "../hooks/useSupabase";
 import { getFardos } from "../services/fardosService";
+import Icon from "./common/Icon";
 
 const PAGE_SIZE = 10;
 
@@ -21,12 +12,54 @@ const formatCost = (cost) =>
     maximumFractionDigits: 2,
   });
 
-const formatDate = (isoString) =>
-  new Date(isoString).toLocaleDateString("es-AR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+const FardoRow = ({ fardo, isLast }) => (
+  <div
+    className={`flex flex-col sm:flex-row sm:items-center gap-3 py-4 px-5 hover:bg-default-50 transition-colors${
+      !isLast ? " border-b border-default-100" : ""
+    }`}
+  >
+    {/* Name + cost */}
+    <div className="flex items-baseline justify-between gap-4 sm:flex-1 min-w-0">
+      <p className="text-2xl font-bold text-foreground truncate leading-tight">
+        {fardo.name}
+      </p>
+      <p className="text-sm font-medium text-default-500 shrink-0">
+        ${formatCost(fardo.cost)}
+      </p>
+    </div>
+
+    {/* Action buttons */}
+    <div className="flex items-center gap-2 justify-end sm:shrink-0">
+      <Button
+        isIconOnly
+        size="md"
+        variant="flat"
+        color="default"
+        aria-label="Ver"
+      >
+        <Icon icon="fa-solid fa-eye" />
+      </Button>
+      <Button
+        isIconOnly
+        size="md"
+        variant="flat"
+        color="warning"
+        aria-label="Editar"
+      >
+        <Icon icon="fa-solid fa-pen-to-square" />
+      </Button>
+      <Button
+        isIconOnly
+        size="md"
+        variant="flat"
+        color="danger"
+        aria-label="Eliminar"
+      >
+        <Icon icon="fa-solid fa-trash" />
+      </Button>
+    </div>
+  </div>
+);
 
 const FardosList = () => {
   const { getClient } = useSupabase();
@@ -43,7 +76,7 @@ const FardosList = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const supabase = await getClient();
+        const supabase = getClient();
         const { data, count } = await getFardos(supabase, {
           page: targetPage,
           pageSize: PAGE_SIZE,
@@ -63,12 +96,9 @@ const FardosList = () => {
     loadPage(page);
   }, [page, loadPage]);
 
-  const handlePageChange = (newPage) => {
-    setPage(newPage);
-  };
-
   return (
     <div className="flex flex-col gap-4 w-full">
+      {/* Section header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-primary">Fardos</h2>
         {!isLoading && (
@@ -78,60 +108,51 @@ const FardosList = () => {
         )}
       </div>
 
-      <Table
-        aria-label="Lista de fardos"
-        isStriped
-        removeWrapper
-        classNames={{
-          base: "overflow-x-auto",
-          th: "bg-primary text-white",
-        }}
-        bottomContent={
-          totalPages > 1 ? (
-            <div className="flex justify-center py-2">
-              <Pagination
-                total={totalPages}
-                page={page}
-                onChange={handlePageChange}
-                color="primary"
-                showControls
-                isDisabled={isLoading}
-              />
-            </div>
-          ) : null
-        }
-      >
-        <TableHeader>
-          <TableColumn>Nombre</TableColumn>
-          <TableColumn>Costo</TableColumn>
-          <TableColumn className="hidden sm:table-cell">Fecha</TableColumn>
-        </TableHeader>
+      {/* List */}
+      <div className="rounded-xl border border-default-200 overflow-hidden">
+        {isLoading && (
+          <div className="flex justify-center items-center py-14">
+            <Spinner color="primary" />
+          </div>
+        )}
 
-        <TableBody
-          isLoading={isLoading}
-          loadingContent={<Spinner color="primary" />}
-          emptyContent={
-            error ? (
-              <p className="text-danger text-sm">{error}</p>
-            ) : (
-              <p className="text-default-400 text-sm">
-                No hay fardos registrados.
-              </p>
-            )
-          }
-          items={fardos}
-        >
-          {(fardo) => (
-            <TableRow key={fardo.id}>
-              <TableCell className="font-medium">{fardo.name}</TableCell>
-              <TableCell>${formatCost(fardo.cost)}</TableCell>
-              <TableCell className="hidden sm:table-cell text-default-500">
-                {formatDate(fardo.created_at)}
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+        {!isLoading && error && (
+          <div className="flex justify-center items-center py-14">
+            <p className="text-danger text-sm">{error}</p>
+          </div>
+        )}
+
+        {!isLoading && !error && fardos.length === 0 && (
+          <div className="flex justify-center items-center py-14">
+            <p className="text-default-400 text-sm">
+              No hay fardos registrados.
+            </p>
+          </div>
+        )}
+
+        {!isLoading &&
+          !error &&
+          fardos.map((fardo, index) => (
+            <FardoRow
+              key={fardo.id}
+              fardo={fardo}
+              isLast={index === fardos.length - 1}
+            />
+          ))}
+      </div>
+
+      {/* Pagination */}
+      {!isLoading && totalPages > 1 && (
+        <div className="flex justify-center py-2">
+          <Pagination
+            total={totalPages}
+            page={page}
+            onChange={setPage}
+            color="primary"
+            showControls
+          />
+        </div>
+      )}
     </div>
   );
 };
