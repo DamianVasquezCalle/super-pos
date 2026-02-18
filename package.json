@@ -17,6 +17,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@nextui-org/react": "^2.4.6",
+    "@supabase/supabase-js": "^2.96.0",
     "eslint-config-prettier": "^9.1.0",
     "framer-motion": "^11.3.19",
     "prop-types": "^15.8.1",
